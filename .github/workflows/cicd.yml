@@ -1,5 +1,10 @@
 name: cicd
-on: [push]
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    types: [opened, synchronize, reopened]
 jobs:
   tests:
     runs-on: ubuntu-latest
@@ -24,28 +29,28 @@ jobs:
       - name: run tests
         run: npm test
 
-#  code-quality:
-#    runs-on: ubuntu-latest
-#
-#    strategy:
-#      matrix:
-#        node-version: [ 14.x, 15.x ]
-#
-#    steps:
-#      - uses: actions/checkout@v2
-#        with:
-#          ref: main
-#
-#      - uses: actions/setup-node@v1
-#        name: Node ${{ matrix.node-version }}
-#        with:
-#          node-version: ${{ matrix.node-version }}
-#
-#      - name: run code quality checks
-#        env:
-#          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
-#          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-#        run: mvn verify sonar:sonar
+  code-quality:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [ 14.x ]
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          ref: main
+
+      - uses: actions/setup-node@v1
+        name: Node ${{ matrix.node-version }}
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: run code quality checks
+        uses: SonarSource/sonarcloud-github-action@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
 #  package:
 #    runs-on: ubuntu-latest
