@@ -1,0 +1,98 @@
+name: cicd
+on: [push]
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [ 14.x, 15.x ]
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          ref: main
+
+      - uses: actions/setup-node@v1
+        name: Node ${{ matrix.node-version }}
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: run tests
+        run: node test
+
+#  code-quality:
+#    runs-on: ubuntu-latest
+#
+#    strategy:
+#      matrix:
+#        node-version: [ 14.x, 15.x ]
+#
+#    steps:
+#      - uses: actions/checkout@v2
+#        with:
+#          ref: main
+#
+#      - uses: actions/setup-node@v1
+#        name: Node ${{ matrix.node-version }}
+#        with:
+#          node-version: ${{ matrix.node-version }}
+#
+#      - name: run code quality checks
+#        env:
+#          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+#          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+#        run: mvn verify sonar:sonar
+
+#  package:
+#    runs-on: ubuntu-latest
+#    needs: [code-quality, tests]
+#    needs: [tests]
+#    steps:
+#      - uses: actions/checkout@v2
+#        with:
+#          ref: main
+#
+#      - uses: actions/setup-node@v1
+#        name: Node ${{ matrix.node-version }}
+#        with:
+#          node-version: ${{ matrix.node-version }}
+#
+#      - name: get artifact version
+#        id: image_version_step
+#        run: echo "::set-output name=ARTIFACT_VERSION::$(xpath -q -e '//project/version/text()' pom.xml)"
+#
+#      - name: echo artifact version
+#        run: echo ${{ steps.image_version_step.outputs.ARTIFACT_VERSION }}
+#
+#      - name: upload artifact
+#        uses: actions/upload-artifact@v2
+#        with:
+#          name: bigly-outputter-latest
+#          path: ./target/bigly-outputter*.jar
+#
+#      - name: build docker image
+#        run: ./mvnw clean spring-boot:build-image
+#
+#      - name: tag docker images
+#        run: |
+#          docker tag bigly-outputter:${{ steps.image_version_step.outputs.ARTIFACT_VERSION }} generalmeow/bigly-outputter:${{ steps.image_version_step.outputs.ARTIFACT_VERSION }}
+#          docker tag bigly-outputter:${{ steps.image_version_step.outputs.ARTIFACT_VERSION }} generalmeow/bigly-outputter:latest
+#
+#      - name: scan
+#        uses: anchore/scan-action@v2
+#        with:
+#          image: "generalmeow/bigly-outputter:latest"
+##          fail-build: true
+##          severity-cutoff: critical
+#
+#      - name: docker login
+#        uses: docker/login-action@v1
+#        with:
+#          username: ${{ secrets.DOCKERHUB_USERNAME }}
+#          password: ${{ secrets.DOCKERHUB_TOKEN }}
+#
+#      - name: upload docker image
+#        run: |
+#          docker push generalmeow/bigly-outputter:${{ steps.image_version_step.outputs.ARTIFACT_VERSION }}
+#          docker push generalmeow/bigly-outputter:latest
