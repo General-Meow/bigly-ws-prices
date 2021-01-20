@@ -7,7 +7,7 @@ const client = new kafka.KafkaClient({
   kafkaHost: kafka_address
 })
 
-const consumer = new kafka.Consumer(client, [ {topic: "company_price", partition: 0} ], {autoCommit: false})
+const consumer = new kafka.Consumer(client, [ {topic: "company_price", partition: 0, offset: -1} ], {autoCommit: false})
 
 consumer.on('message', function (message) {
   console.log("got new message: ", message.value)
