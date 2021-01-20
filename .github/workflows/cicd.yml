@@ -22,7 +22,7 @@ jobs:
         run: npm install
 
       - name: run tests
-        run: node test
+        run: npm test
 
 #  code-quality:
 #    runs-on: ubuntu-latest
