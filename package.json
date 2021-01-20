@@ -4,7 +4,7 @@
   "description": "Stream price data from the price kafka topic",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "mocha",
     "start": "node ./src/index.js"
   },
   "keywords": [],
@@ -13,5 +13,8 @@
   "dependencies": {
     "kafka-node": "^5.0.0",
     "socket.io": "^3.1.0"
+  },
+  "devDependencies": {
+    "mocha": "^8.2.1"
   }
 }
