@@ -18,25 +18,29 @@ app.get('/', (req, resp) => {
 })
 
 
-io.on('connection', (socket) => {
-  console.log('new user has made a connection')
-
-  const kafkaHost = process.env.KAFKA_HOST || '192.168.1.81'
-  const kafkaHostPort = process.env.KAFKA_HOST_PORT || '9092'
-  const kafka_address = kafkaHost + ':' + kafkaHostPort
-  const client = new kafka.KafkaClient({
-    kafkaHost: kafka_address
-  })
-
-  const consumer = new kafka.Consumer(client, [ {topic: "company_price", partition: 0, offset: -1} ], {autoCommit: true})
-
-  consumer.on('message', function (message) {
-    console.log("got new message: ", message.value)
-    io.emit('tick', message.value)
-  })
-
+const kafkaHost = process.env.KAFKA_HOST || '192.168.1.81'
+const kafkaHostPort = process.env.KAFKA_HOST_PORT || '9092'
+const kafka_address = kafkaHost + ':' + kafkaHostPort
+const client = new kafka.KafkaClient({
+  kafkaHost: kafka_address
 })
 
+const consumer = new kafka.Consumer(client, [ {topic: "company_price", partition: 0, offset: -1} ],
+    {groupId: 'ws-client', autoCommit: true})
+
+consumer.on('message', function (message) {
+  console.log("got new message: ", message.value)
+  io.emit('tick', message.value)
+})
+
+//
+// io.on('connection', (socket) => {
+//   console.log('new user has made a connection')
+//
+// })
+consumer.on('message', function (message) {
+  io.emit('tick', message.value)
+})
 
 httpServer.listen(port, () => {
   console.log(`Express is now running on port ${port}`)
